@@ -1,0 +1,7 @@
+dna-1-dal-pdf-corto: preso da internet, 4KB, ha caratteri brutti all'inizio
+cog_2020-04-24_alignment.fasta: preso da internet, 250MB, ha alcune cose brutte aggiuntive
+dataset1.txt: generato casualmente, 200 caratteri
+dataset2.txt: generato casualmente, 2000 caratteri
+dataset3.txt: e' il dataset 2 ripetuto 10 volte (quindi con ripetizioni), 20mila caratteri
+dataset4.txt: generato casualmente, 500mila caratteri
+dataset5.txt: generato casualmente, 10 milioni di caratteri

@@ -51,6 +51,9 @@ long* search(char* pat, char* txt)
 	long M = strlen(pat); 
 	long N = strlen(txt); 
 	
+	long blockDim=1000;
+	//TODO: Scgeliere la dimensione del blocco in modo dinamico
+	
 	long* r; //r[0] contiene il numero di elementi del vettore 
 	int dim=20;
 	r = malloc(dim * sizeof(long));
@@ -69,39 +72,50 @@ long* search(char* pat, char* txt)
 	// Preprocess the pattern (calculate lps[] array) 
 	computeLPSArray(pat, M, lps); 
 
-	int i = 0; // index for txt[] 
-	int j = 0; // index for pat[] 
-	while (i < N) { 
-		if (pat[j] == txt[i]) { 
-			j++; 
-			i++; 
-		} 
-
-		if (j == M) { 
-			//printf("Found pattern at index %d ", i - j);
-			if(r[0]+1 > dim)
-			{
-				dim = dim*2;
-				r = realloc (r, dim * sizeof(long));
-				if(!r){
-					printf("Error realloc");
-					return NULL;
+	long i = 0; // index for txt[] 
+	long j = 0; // index for pat[] 
+	long k;
+	#pragma omp parallel
+	#pragma omp for private(i, j, k) schedule(dynamic, 1)
+	for(k = 0; k < N; k += (blockDim-(M-1)))
+	{
+		i = k;
+		j = 0;
+		while (i < k + blockDim)
+		{ 
+			if (pat[j] == txt[i]) { 
+				j++; 
+				i++; 
+			} 
+	
+			if (j == M) { 
+				//printf("Found pattern at index %d ", i - j);
+				#pragma omp critical
+				{
+					if(r[0]+1 > dim)
+					{
+						dim = dim*2;
+						r = realloc (r, dim * sizeof(long));
+						if(!r){
+							printf("Error realloc");
+							//return NULL;
+						}
+					}
+					r[r[0]+1] = i;
+					r[0] += 1;
 				}
-			}
-			r[r[0]+1] = i;
-			r[0] += 1;
-			
-			j = lps[j - 1]; 
-		} 
-		// mismatch after j matches 
-		else if (i < N && pat[j] != txt[i]) { 
-			// Do not match lps[0..lps[j-1]] characters, 
-			// they will match anyway 
-			if (j != 0) 
 				j = lps[j - 1]; 
-			else
-				i = i + 1; 
-		} 
+			} 
+			// mismatch after j matches 
+			else if (i < k + blockDim && pat[j] != txt[i]) { 
+				// Do not match lps[0..lps[j-1]] characters, 
+				// they will match anyway 
+				if (j != 0) 
+					j = lps[j - 1]; 
+				else
+					i = i + 1; 
+			} 
+		}
 	}
 	r = realloc (r, (r[0]+1) * sizeof(long));
 	if(!r){
@@ -112,6 +126,8 @@ long* search(char* pat, char* txt)
 } 
 
 // Fills lps[] for given patttern pat[0..M-1] 
+// lps e' il vettore che contiene le robe dei suffissi prefissi
+// TODO: capire se parallelizzare anche questo
 void computeLPSArray(char* pat, int M, int* lps) 
 { 
 	// length of the previous longest prefix suffix 
@@ -160,7 +176,7 @@ int main()
 		printf("Errore nell'apertura del file!");
 		return -1;
 	}
-	
+	printf("File aperto\n");
 	double t1 = omp_get_wtime();		
 	txt = readFile(fin, &n);	
 	double t2 = omp_get_wtime();

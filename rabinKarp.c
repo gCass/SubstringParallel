@@ -12,7 +12,6 @@ Algorithm given in the CLRS book */
 // d is the number of characters in the input alphabet 
 #define NO_OF_CHARS 256
 
-char * readFile(FILE *fin, int *n);
 
 char * readFile(FILE *fin, int *n) {
 	int BLOCK_READ_SIZE = 200;
@@ -51,8 +50,8 @@ char * readFile(FILE *fin, int *n) {
 */
 long* search(char *pat, char *txt, int q) 
 { 
-	int M = strlen(pat); 
-	int N = strlen(txt); 
+	long M = strlen(pat); 
+	long N = strlen(txt); 
 	long i, j; 
 	int p = 0; // hash value for pattern 
 	int t = 0; // hash value for txt 

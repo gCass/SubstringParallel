@@ -63,6 +63,15 @@ int lcs (char *a, int n, char *b, int m, char **s) {
             }
         }
     }
+    
+    printf("Matrice c\n");
+	for(i=0; i<=n; i++){
+		for(j=0; j<=m; j++){
+			printf("%d ",c[i][j]);
+		}
+		printf("\n");
+	}
+    
     //t contiene il valore finale della lunghezza della lcs
     t = c[n][m];
     //Alloco lo spazio per la lcs
@@ -108,8 +117,9 @@ int main () {
 //    fclose(fin);
 
 
-	a = "CAGATA";
-	b = "BANANA";
+	a = "PROVACAZZO";
+	b = "UUUO";
+    
 
     
     int n = strlen(a);

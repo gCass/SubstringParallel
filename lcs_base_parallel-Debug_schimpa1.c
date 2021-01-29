@@ -166,8 +166,8 @@ int main () {
 //    fclose(fin);
 
 	//Assumo che b sia la piu' corta delle due stringhe (m<=n)
-	a = "DIJKSTRA";
-	b = "KNUTH";
+	a = "PROVACAZZO";
+	b = "UUUO";
     
     int n = strlen(a);
     int m = strlen(b);

@@ -39,7 +39,7 @@ char * readFile(FILE *fin, int *n) {
  
 int lcs (char *a, int n, char *b, int m, char **s) {
     int i, j, k, t;
-    int *z = calloc((n + 1) * (m + 1), sizeof (int));
+    int *z = calloc((n + 1) * (m + 1), sizeof (int));	//NB: la matrice c e' (n+1)x(m+1), non nxm!!!
     int **c = calloc((n + 1), sizeof (int *));
     
 	//Assegno a c i puntatori che puntano alle varie posizioni di z (vedere disegno su paint)
@@ -64,11 +64,11 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     k=0;
     int l=0;
     //Itero sui blob blu
-    for (k=1; k<= n+m-1;k++){
+    for (k=1; k <= n+m-1; k++){
     	//printf("K:%d\n",k);
     	//Itero sulle operazioni interne al blob
-		if(k < n){
-			for (l=1; l <= k+1; l++){				
+		if(k <= n){
+			for (l=1; l <= k; l++){				
 				//printf("l:%d\n",l);
 
 				i = l;
@@ -89,7 +89,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 			}	
 		}else {
 			printf("Sotto\n");
-			for (l=k-n+2; l <= n; l++){
+			for (l=k-n+1; l <= n; l++){
     			//printf("l:%d\n",l);
 
     			i = l;
@@ -164,16 +164,21 @@ int main () {
     int n = strlen(a);
     int m = strlen(b);
     
-    printf("Ciao");
+    //printf("Ciao");
     
     int t = lcs(a, n, b, m, &s);
     
-	printf(a);
-	printf("\n");
+    printf("Stampe\n");
+    
+	printf("%s\n",a);
+	//printf("\n");
 	
-	printf(b);
-	printf("\n");
+	printf("%s\n",b);
+	printf("++++++++++++++++++\n");
 	
-	printf("%.*s\n", t, s); // tsitest
+	printf("t = %d\n", t);
+	printf("s = %s\n", s);
+	
+	//printf("%.*s\n", t, s); // tsitest
     return 0;
 }

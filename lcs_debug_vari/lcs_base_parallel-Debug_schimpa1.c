@@ -4,6 +4,7 @@
 #include <omp.h>
 
 #define MAX(a, b) (a > b ? a : b)
+#define MIN(a, b) (a < b ? a : b)
   
 char * readFile(FILE *fin, int *n);
 
@@ -36,15 +37,14 @@ char * readFile(FILE *fin, int *n) {
 	return txt;
 }
 
- 
 int lcs (char *a, int n, char *b, int m, char **s) {
     int i, j, k, t;
-    int *z = calloc((n + 1) * (m + 1), sizeof (int));
+    int *z = calloc((n + 1) * (m + 1), sizeof (int));	//NB: la matrice c e' (n+1)x(m+1), non nxm!!!
     int **c = calloc((n + 1), sizeof (int *));
     
 	//Assegno a c i puntatori che puntano alle varie posizioni di z (vedere disegno su paint)
 	//Queste iterazioni sono tutte indipendenti
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for (i = 0; i <= n; i++) {
         c[i] = &z[i * (m + 1)];
     }
@@ -64,19 +64,19 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     k=0;
     int l=0;
     //Itero sui blob blu
-    for (k=1; k<= n+m-1;k++){
+    for (k=1; k <= n+m-1; k++){
     	//printf("K:%d\n",k);
     	//Itero sulle operazioni interne al blob
-		if(k < n){
-			for (l=1; l <= k+1; l++){				
+		if(k <= n){
+			for (l=1; l <= MIN(m,k); l++){				
 				//printf("l:%d\n",l);
 
-				i = l;
-				j = k-l+1;//Io voglio sempre i+j=k+1
+				j = l;
+				i = k-l+1;//Io voglio sempre i+j=k+1
 				
-				printf("i:%d\n",i);
-				printf("j:%d\n",j);
-				printf("\n\n");
+//				printf("i:%d\n",i);
+//				printf("j:%d\n",j);
+//				printf("\n\n");
 
 						
     			if (a[i - 1] == b[j - 1]) {
@@ -88,16 +88,16 @@ int lcs (char *a, int n, char *b, int m, char **s) {
             	}
 			}	
 		}else {
-			printf("Sotto\n");
-			for (l=k-n+2; l <= n; l++){
+//			printf("Sotto\n");
+			for (l=k-n+1; l <= m; l++){
     			//printf("l:%d\n",l);
 
-    			i = l;
-				j = k-l+1; //Io voglio sempre i+j=k+1
+    			j = l;
+				i = k-l+1; //Io voglio sempre i+j=k+1
 				
-				printf("i:%d\n",i);
-				printf("j:%d\n",j);
-				printf("\n\n");
+//				printf("j:%d\n",j);
+//				printf("i:%d\n",i);
+//				printf("\n\n");
     			
     			if (a[i - 1] == b[j - 1]) {
              	  c[i][j] = c[i - 1][j - 1] + 1;
@@ -111,12 +111,19 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 		}
 		 	
 	}
+//	printf("Matrice c\n");
+//	for(i=0; i<=n; i++){
+//		for(j=0; j<=m; j++){
+//			printf("%d ",c[i][j]);
+//		}
+//		printf("\n");
+//	}
     
 
     //t contiene il valore finale della lunghezza della lcs
     t = c[n][m];
     //Alloco lo spazio per la lcs
-    *s = malloc(t);
+    *s = malloc(t*sizeof(char));
     //Ricostruisco la lcs
     for (i = n, j = m, k = t - 1; k >= 0;) {
         if (a[i - 1] == b[j - 1])
@@ -126,7 +133,9 @@ int lcs (char *a, int n, char *b, int m, char **s) {
         else
             i--;
     }
-    
+    //Aggiungo il carattere terminatore alla fine della stringa
+	(*s)[t] = '\0';
+	
     //Libero lo spazio
     free(c);
     free(z);
@@ -157,23 +166,28 @@ int main () {
 //	b = readFile(fin, &N);
 //    fclose(fin);
 
-
-	a = "CAGATA";
-	b = "BANANA";
+	//Assumo che b sia la piu' corta delle due stringhe (m<=n)
+	a = "PROVACAZZO";
+	b = "UUAU";
     
     int n = strlen(a);
     int m = strlen(b);
     
-    printf("Ciao");
+    //printf("Ciao");
     
     int t = lcs(a, n, b, m, &s);
     
-	printf(a);
-	printf("\n");
+    printf("Stampe\n");
+    
+    //Stampo le stringhe di input
+	printf("%s\n",a);	
+	printf("%s\n",b);
+	printf("++++++++++++++++++\n");
+	//Stampo il risultato
+	printf("t = %d\n", t);
+	printf("s = ");
+	printf(s);
 	
-	printf(b);
-	printf("\n");
-	
-	printf("%.*s\n", t, s); // tsitest
+	//printf("%.*s\n", t, s); // tsitest
     return 0;
 }

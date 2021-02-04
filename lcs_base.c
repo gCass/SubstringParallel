@@ -117,8 +117,9 @@ int main () {
 //    fclose(fin);
 
 
-	a = "PROVACAZZO";
-	b = "UUUO";
+	a = "UUUAOUUUAOUUUAOUUUAOUUUAO";
+	b = "PROVACAZZOPROVA";
+    
     
 
     

@@ -54,8 +54,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     
     //Dividere la matrice in blocchi
     int BLOCK_SIZE = 5;
-    int number_of_blocks = MIN(n/5, m/5);
-    printf("Number of blocks:%d\n",number_of_blocks);
+//    int number_of_blocks = MIN(n/5, m/5);
+//    printf("Number of blocks:%d\n",number_of_blocks);
     
     //Dynamic programming che mette nella matrice i vari risultati di lcs ecc...
 	//ciclo tra blocchi diversi, per ora di grandezza 5
@@ -85,8 +85,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 				//k=3, l=2 => i=1+BLOCK*(3-2), j=1+BLOCK*(2-1)=1+BLOCK
 				//k=3, l=3 => i=1+BLOCK*(3-3), j=1+2*BLOCK=1+BLOCK()
 				
-				int i_start = i=1+BLOCK_SIZE*(k-l);				
-				int j_start = j=1+BLOCK_SIZE*(l-1);
+				int i_start = 1+BLOCK_SIZE*(k-l);				
+				int j_start = 1+BLOCK_SIZE*(l-1);
 
 //				printf("i_start:%d\n",i_start);
 //				printf("j_start:%d\n",j_start);
@@ -123,7 +123,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 				//k=4, l=2 => i=1+BLOCK*(3-2), j=1+BLOCK*(2-1)=1+BLOCK
 				//k=5, l=3 => i=1+BLOCK*(3-3), j=1+2*BLOCK=1+BLOCK()
 				
-				printf("L:%d\n",l);
+//				printf("L:%d\n",l);
 				
 				int i_start = 1+BLOCK_SIZE*(k-l);				
 				int j_start = 1+BLOCK_SIZE*(l-1);

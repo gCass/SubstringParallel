@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <omp.h>
- 
+
 #define MAX(a, b) (a > b ? a : b)
 #define MIN(a, b) (a < b ? a : b)
 
@@ -43,11 +43,6 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     int i, j, k, t;
     int *z = calloc((n + 1) * (m + 1), sizeof (int));
     int **c = calloc((n + 1), sizeof (int *));
-    double t1,t2;
-    
-    //Pensare a fugnata per aggiungere caratteri in modo da fare che le stringhe
-    //sono multiple del block size
-    //TODO...
     
 	//Assegno a c i puntatori che puntano alle varie posizioni di z (vedere disegno su paint)
 	for (i = 0; i <= n; i++) {
@@ -70,7 +65,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 	
 	//Da controllare l'estremo finale
 	int l;
-	t1 = omp_get_wtime();
+	//Itero selezionato un numero di blocchi sulle diagonali
 	for (k=1; k <= (m+n)/BLOCK_SIZE - 1; k++){
     	
 		
@@ -79,6 +74,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     		//printf("Sopra K:%d",k);
     		//Ora seleziono quale blocco interno alla diagonale di blocchi
     		//Questi sono i cicli indipendenti da parallelizzare
+    		
+    		#pragma omp parallel for private(i,j)
 			for (l=1; l <= MIN(m/BLOCK_SIZE,k); l++){				
 				//Qua dentro devo applicare calcolo della matrice normale 
 				//k=1, l=1 => i=1, j=1
@@ -105,7 +102,9 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 //						printf("j:%d\n",j);
 //						printf("\n\n");
 //			        	
-			            if (a[i - 1] == b[j - 1]) {
+						//Quando accediamo le celle di una matrice di blocchi diversi in parallelo
+						//non entriamo mai in parallelo sulla stessa cella, quindi la sezione critica non serve
+			            if (a[i - 1] == b[j - 1]) {			            	
 			                c[i][j] = c[i - 1][j - 1] + 1;
 			            }
 			            else {
@@ -118,6 +117,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 			//sotto
 			//printf("Sotto K:%d",k);
 			//Ora seleziono quale blocco interno alla diagonale di blocchi
+    		#pragma omp parallel for private(i,j)
 			for (l=k-n/BLOCK_SIZE+1; l <= MIN(m/BLOCK_SIZE,k); l++){	
 				
 				//k=4, l=1 => i=1+BLOCK*(K-l)=1+B*(2-1), j=1+BLOCK*(l-1)
@@ -157,9 +157,6 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 			}		
 		}
 	}
-    t2 = omp_get_wtime();
-	printf("T algoritmo vero lcs:%f\n",t2-t1);
-
     
 //    printf("Matrice c\n");
 //	for(i=0; i<=n; i++){
@@ -173,8 +170,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     t = c[n][m];
     //Alloco lo spazio per la lcs
     *s = malloc(t);
-    //Ricostruisco la lcs
-    t1 = omp_get_wtime();
+    
+	//Ricostruisco la lcs (per ora non parallelizabile, magari da ricostruire in modo parallelizzato)
     for (i = n, j = m, k = t - 1; k >= 0;) {
         if (a[i - 1] == b[j - 1])
             (*s)[k] = a[i - 1], i--, j--, k--;
@@ -183,16 +180,10 @@ int lcs (char *a, int n, char *b, int m, char **s) {
         else
             i--;
     }
-    t2 = omp_get_wtime();
-	printf("T ricostruzione:%f\n",t2-t1);
     
     //Libero lo spazio
-    
-    t1 = omp_get_wtime();
     free(c);
     free(z);
-    t2 = omp_get_wtime();
-	printf("T free:%f\n",t2-t1);
     return t;
 }
 
@@ -202,46 +193,72 @@ int main () {
    	int N=0;
     char *s = NULL;
     double t1,t2;
-	
-	char path1[] = "dataset/stringa_lcs_3.txt";
+    
+  	char path1[] = "dataset/stringa_lcs_3.txt";
 	char path2[] = "dataset/stringa_lcs_4.txt";	
 	FILE *fin;
+	int reading_error = 0; //Flag gestione errore lettura file
+	
+	t1 = omp_get_wtime();
+	
+	//La lettura dei due file in parallelo è un'aggiunta in più, ma che non ha grandi vantaggi 	
+	#pragma omp parallel private(fin)
+	{	
+		#pragma omp single
+		{
+			#pragma omp task
+			{
+				if((fin = fopen(path1, "r"))!=NULL){
+//					printf("Errore nell'apertura del file!");					
+					a = readFile(fin, &N);
+					fclose(fin);						
+				}else{
+					reading_error = 1;
+				}				
+			}
+			
+			#pragma omp task
+			{
+				if((fin = fopen(path1, "r"))!=NULL){
+//					printf("Errore nell'apertura del file!");					
+					b = readFile(fin, &N);
+					fclose(fin);						
+				}else{
+					reading_error = 1;
+				}	
+			}
+			
+			#pragma omp taskwait	
+		}
+	}
+	
+ 	t2 = omp_get_wtime();
+	printf("T lettura:%f\n",t2-t1);
 
-	if((fin = fopen(path1, "r"))==NULL){
+	if(reading_error == 1){
 		printf("Errore nell'apertura del file!");
 		return -1;
 	}
-	t1 = omp_get_wtime();	
-	a = readFile(fin, &N);
-    fclose(fin);
-    
-    if((fin = fopen(path2, "r"))==NULL){
-		printf("Errore nell'apertura del file!");
-		return -1;
-	}	
-	b = readFile(fin, &N);
-    fclose(fin);
- 	t2 = omp_get_wtime();
-	printf("T lettura:%f\n",t2-t1);
-	
-	//Faccio una 20x15, così da fare blocchi da 5
+
+
+	//Faccio una 15x15, così da fare blocchi da 5
 	
 //	a = "UUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAO";
 //	b = "PROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVA";
-//    
+    
 
-     //I primi 3 caratteri del file sono caratteri di controllo
+    //I primi 3 caratteri del file sono caratteri di controllo
     //li scartiamo facendo +3 al puntatore
     int n = strlen(a+3);
     int m = strlen(b+3);
-    
+    printf("n:%d m:%d\n",n,m);
     
     t1 = omp_get_wtime();
 
     int t = lcs(a+3, n, b+3, m, &s);
     t2 = omp_get_wtime();
 	printf("T lcs:%f\n",t2-t1);
-    
+	
 //	printf(a);
 //	printf("\n");
 //	

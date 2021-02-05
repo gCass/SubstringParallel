@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
  
  
 #define MAX(a, b) (a > b ? a : b)
@@ -51,9 +52,9 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     for (i = 1; i <= n; i++) {
         for (j = 1; j <= m; j++) {
         	
-			printf("i:%d\n",i);
-			printf("j:%d\n",j);
-			printf("\n\n");
+//			printf("i:%d\n",i);
+//			printf("j:%d\n",j);
+//			printf("\n\n");
         	
             if (a[i - 1] == b[j - 1]) {
                 c[i][j] = c[i - 1][j - 1] + 1;
@@ -64,13 +65,13 @@ int lcs (char *a, int n, char *b, int m, char **s) {
         }
     }
     
-    printf("Matrice c\n");
-	for(i=0; i<=n; i++){
-		for(j=0; j<=m; j++){
-			printf("%d ",c[i][j]);
-		}
-		printf("\n");
-	}
+//    printf("Matrice c\n");
+//	for(i=0; i<=n; i++){
+//		for(j=0; j<=m; j++){
+//			printf("%d ",c[i][j]);
+//		}
+//		printf("\n");
+//	}
     
     //t contiene il valore finale della lunghezza della lcs
     t = c[n][m];
@@ -97,37 +98,42 @@ int main () {
     char *b;
    	int N=0;
     char *s = NULL;
+    double t1,t2;
     
-//    char path1[] = "dataset/stringa_lcs_1.txt";
-//	char path2[] = "dataset/stringa_lcs_2.txt";	
-//	FILE *fin;
-//
-//	if((fin = fopen(path1, "r"))==NULL){
-//		printf("Errore nell'apertura del file!");
-//		return -1;
-//	}	
-//	a = readFile(fin, &N);
-//    fclose(fin);
-//    
-//    if((fin = fopen(path2, "r"))==NULL){
-//		printf("Errore nell'apertura del file!");
-//		return -1;
-//	}	
-//	b = readFile(fin, &N);
-//    fclose(fin);
+    char path1[] = "dataset/stringa_lcs_3.txt";
+	char path2[] = "dataset/stringa_lcs_4.txt";	
+	FILE *fin;
+
+	if((fin = fopen(path1, "r"))==NULL){
+		printf("Errore nell'apertura del file!");
+		return -1;
+	}	
+	a = readFile(fin, &N);
+    fclose(fin);
+    
+    if((fin = fopen(path2, "r"))==NULL){
+		printf("Errore nell'apertura del file!");
+		return -1;
+	}	
+	b = readFile(fin, &N);
+    fclose(fin);
 
 
-	a = "UUUAOUUUAOUUUAOUUUAOUUUAO";
-	b = "PROVACAZZOPROVA";
+//	a = "UUUAOUUUAOUUUAOUUUAOUUUAO";
+//	b = "PROVACAZZOPROVA";
     
     
 
     
-    int n = strlen(a);
-    int m = strlen(b);
+    int n = strlen(a+3);
+    int m = strlen(b+3);
     
-    
-    int t = lcs(a, n, b, m, &s);
+    t1 = omp_get_wtime();
+    int t = lcs(a+3, n, b+3, m, &s);
+    t2 = omp_get_wtime();
+  	printf("T lcs:%f\n",t2-t1);
+
+
     
 //	printf(a);
 //	printf("\n");

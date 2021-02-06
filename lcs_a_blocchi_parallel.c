@@ -6,6 +6,8 @@
 #define MAX(a, b) (a > b ? a : b)
 #define MIN(a, b) (a < b ? a : b)
 
+int BLOCK_SIZE;
+
 char * readFile(FILE *fin, int *n);
 
 char * readFile(FILE *fin, int *n) {
@@ -50,7 +52,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     }
     
     //Dividere la matrice in blocchi
-    int BLOCK_SIZE = 16;
+    //int BLOCK_SIZE = 16;
 //    int number_of_blocks = MIN(n/5, m/5);
 //    printf("Number of blocks:%d\n",number_of_blocks);
     
@@ -59,8 +61,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 	k = 0;
 	
 	//We need to get the correct index for the blocks
-	int row_start;
-	int column_start;
+	int i_start;
+	int j_start;
 	
 	
 	//Da controllare l'estremo finale
@@ -75,7 +77,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     		//Ora seleziono quale blocco interno alla diagonale di blocchi
     		//Questi sono i cicli indipendenti da parallelizzare
     		
-    		#pragma omp parallel for private(i,j)
+    		#pragma omp parallel for private(i,j, i_start, j_start)
 			for (l=1; l <= MIN(m/BLOCK_SIZE,k); l++){				
 				//Qua dentro devo applicare calcolo della matrice normale 
 				//k=1, l=1 => i=1, j=1
@@ -85,8 +87,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 				//k=3, l=2 => i=1+BLOCK*(3-2), j=1+BLOCK*(2-1)=1+BLOCK
 				//k=3, l=3 => i=1+BLOCK*(3-3), j=1+2*BLOCK=1+BLOCK()
 				
-				int i_start = 1+BLOCK_SIZE*(k-l);				
-				int j_start = 1+BLOCK_SIZE*(l-1);
+				i_start = 1+BLOCK_SIZE*(k-l);				
+				j_start = 1+BLOCK_SIZE*(l-1);
 
 //				printf("i_start:%d\n",i_start);
 //				printf("j_start:%d\n",j_start);
@@ -117,7 +119,7 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 			//sotto
 			//printf("Sotto K:%d",k);
 			//Ora seleziono quale blocco interno alla diagonale di blocchi
-    		#pragma omp parallel for private(i,j)
+    		#pragma omp parallel for private(i,j, i_start, j_start)
 			for (l=k-n/BLOCK_SIZE+1; l <= MIN(m/BLOCK_SIZE,k); l++){	
 				
 				//k=4, l=1 => i=1+BLOCK*(K-l)=1+B*(2-1), j=1+BLOCK*(l-1)
@@ -128,8 +130,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 				
 //				printf("L:%d\n",l);
 				
-				int i_start = 1+BLOCK_SIZE*(k-l);				
-				int j_start = 1+BLOCK_SIZE*(l-1);
+				i_start = 1+BLOCK_SIZE*(k-l);				
+				j_start = 1+BLOCK_SIZE*(l-1);
 				
 //				printf("i_start:%d\n",i_start);
 //				printf("j_start:%d\n",j_start);
@@ -187,15 +189,24 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     return t;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
     char *a;
     char *b;
    	int N=0;
     char *s = NULL;
     double t1,t2;
     
-  	char path1[] = "dataset/stringa_lcs_3.txt";
-	char path2[] = "dataset/stringa_lcs_4.txt";	
+    // Come parametri vogliamo i nomi dei due file e la dimensione del blocco.
+    // Tra i parametri viene sempre considerato anche il nome del programma
+    if(argc != 4) {
+    	printf("Inserire come parametri del programma i nomi dei due file e la dimensione del blocco\n");
+    	return 0;
+	}
+	
+	BLOCK_SIZE = atoi(argv[3]);
+    
+  	//char path1[] = "dataset/stringa_lcs_3.txt";
+	//char path2[] = "dataset/stringa_lcs_4.txt";	
 	FILE *fin;
 	int reading_error = 0; //Flag gestione errore lettura file
 	
@@ -208,7 +219,7 @@ int main () {
 		{
 			#pragma omp task
 			{
-				if((fin = fopen(path1, "r"))!=NULL){
+				if((fin = fopen(argv[1], "r"))!=NULL){
 //					printf("Errore nell'apertura del file!");					
 					a = readFile(fin, &N);
 					fclose(fin);						
@@ -219,7 +230,7 @@ int main () {
 			
 			#pragma omp task
 			{
-				if((fin = fopen(path1, "r"))!=NULL){
+				if((fin = fopen(argv[2], "r"))!=NULL){
 //					printf("Errore nell'apertura del file!");					
 					b = readFile(fin, &N);
 					fclose(fin);						

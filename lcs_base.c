@@ -93,25 +93,33 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     return t;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
     char *a;
     char *b;
    	int N=0;
     char *s = NULL;
     double t1,t2;
     
-    char path1[] = "dataset/stringa_lcs_3.txt";
-	char path2[] = "dataset/stringa_lcs_4.txt";	
+    
+    // Come parametri vogliamo i nomi dei due file e la dimensione del blocco.
+    // Tra i parametri viene sempre considerato anche il nome del programma
+    if(argc != 3) {
+    	printf("Inserire come parametri del programma i nomi dei due file\n");
+    	return 0;
+	}
+	
+    //char path1[] = "dataset/stringa_lcs_3.txt";
+	//char path2[] = "dataset/stringa_lcs_4.txt";	
 	FILE *fin;
 
-	if((fin = fopen(path1, "r"))==NULL){
+	if((fin = fopen(argv[1], "r"))==NULL){
 		printf("Errore nell'apertura del file!");
 		return -1;
 	}	
 	a = readFile(fin, &N);
     fclose(fin);
     
-    if((fin = fopen(path2, "r"))==NULL){
+    if((fin = fopen(argv[2], "r"))==NULL){
 		printf("Errore nell'apertura del file!");
 		return -1;
 	}	

@@ -75,89 +75,47 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 	t1 = omp_get_wtime();
 	for (k=1; k <= (m+n)/BLOCK_SIZE - 1; k++){
     	
-		
-		if(k < (n/BLOCK_SIZE)+1){
-    		//sopra
-    		//printf("Sopra K:%d",k);
-    		//Ora seleziono quale blocco interno alla diagonale di blocchi
-    		//Questi sono i cicli indipendenti da parallelizzare
-			for (l=1; l <= MIN(m/BLOCK_SIZE,k); l++){				
-				//Qua dentro devo applicare calcolo della matrice normale 
-				//k=1, l=1 => i=1, j=1
-				//k=2, l=1 => i=1+BLOCK*(K-l)=1+B*(2-1), j=1+BLOCK*(l-1)
-				//k=2, l=2 => i=1+BLOCK*(K-l)=1, j=1+BLOCK*(2-1)=1+BLOCK 
-				//k=3, l=1 => i=1+BLOCK*(3-1), j=1=1+BLOCK*(1-1)
-				//k=3, l=2 => i=1+BLOCK*(3-2), j=1+BLOCK*(2-1)=1+BLOCK
-				//k=3, l=3 => i=1+BLOCK*(3-3), j=1+2*BLOCK=1+BLOCK()
-				
-				i_start = 1+BLOCK_SIZE*(k-l);				
-				j_start = 1+BLOCK_SIZE*(l-1);
+		//printf("Sopra K:%d",k);
+		//Ora seleziono quale blocco interno alla diagonale di blocchi
+		//Questi sono i cicli indipendenti da parallelizzare
+		for (l=MAX(1,k-n/BLOCK_SIZE+1); l <= MIN(m/BLOCK_SIZE,k); l++){				
+			//Qua dentro devo applicare calcolo della matrice normale 
+			//k=1, l=1 => i=1, j=1
+			//k=2, l=1 => i=1+BLOCK*(K-l)=1+B*(2-1), j=1+BLOCK*(l-1)
+			//k=2, l=2 => i=1+BLOCK*(K-l)=1, j=1+BLOCK*(2-1)=1+BLOCK 
+			//k=3, l=1 => i=1+BLOCK*(3-1), j=1=1+BLOCK*(1-1)
+			//k=3, l=2 => i=1+BLOCK*(3-2), j=1+BLOCK*(2-1)=1+BLOCK
+			//k=3, l=3 => i=1+BLOCK*(3-3), j=1+2*BLOCK=1+BLOCK()
+			
+			i_start = 1+BLOCK_SIZE*(k-l);				
+			j_start = 1+BLOCK_SIZE*(l-1);
 
 //				printf("i_start:%d\n",i_start);
 //				printf("j_start:%d\n",j_start);
 //				printf("\n");
-				
-				//Applico il lcs seriale
-				//					<= n
-				for (i = i_start; i < i_start+BLOCK_SIZE; i++) {
-										//<= m
-					for (j = j_start; j < j_start+BLOCK_SIZE; j++) {
-			        	
+			
+			//Applico il lcs seriale
+			//					<= n
+			for (i = i_start; i < i_start+BLOCK_SIZE; i++) {
+									//<= m
+				for (j = j_start; j < j_start+BLOCK_SIZE; j++) {
+		        	
 //						printf("i:%d\n",i);
 //						printf("j:%d\n",j);
 //						printf("\n\n");
 //			        	
-			            if (a[i - 1] == b[j - 1]) {
-			                c[i][j] = c[i - 1][j - 1] + 1;
-			            }
-			            else {
-			                c[i][j] = MAX(c[i - 1][j], c[i][j - 1]);
-			            }
-			        }
-			    }				
-			}			
-		}else{
-			//sotto
-			//printf("Sotto K:%d",k);
-			//Ora seleziono quale blocco interno alla diagonale di blocchi
-			for (l=k-n/BLOCK_SIZE+1; l <= MIN(m/BLOCK_SIZE,k); l++){	
-				
-				//k=4, l=1 => i=1+BLOCK*(K-l)=1+B*(2-1), j=1+BLOCK*(l-1)
-				//k=4, l=2 => i=1+BLOCK*(K-l)=1, j=1+BLOCK*(2-1)=1+BLOCK 
-				//k=4, l=1 => i=1+BLOCK*(3-1), j=1=1+BLOCK*(1-1)
-				//k=4, l=2 => i=1+BLOCK*(3-2), j=1+BLOCK*(2-1)=1+BLOCK
-				//k=5, l=3 => i=1+BLOCK*(3-3), j=1+2*BLOCK=1+BLOCK()
-				
-//				printf("L:%d\n",l);
-				
-				i_start = 1+BLOCK_SIZE*(k-l);				
-				j_start = 1+BLOCK_SIZE*(l-1);
-				
-//				printf("i_start:%d\n",i_start);
-//				printf("j_start:%d\n",j_start);
-//				printf("\n");
-//				
-				
-				//Applico il lcs seriale
-				//					<= n
-				for (i = i_start; i < i_start+BLOCK_SIZE; i++) {
-										//<= m
-					for (j = j_start; j < j_start+BLOCK_SIZE; j++) {
-			        	
-//						printf("i:%d\n",i);
-//						printf("j:%d\n",j);
-//						printf("\n\n");
-//			        	
-			            if (a[i - 1] == b[j - 1]) {
-			                c[i][j] = c[i - 1][j - 1] + 1;
-			            }
-			            else {
-			                c[i][j] = MAX(c[i - 1][j], c[i][j - 1]);
-			            }
-			        }
-			    }
-			}		
-		}
+		            if (a[i - 1] == b[j - 1]) {
+		                c[i][j] = c[i - 1][j - 1] + 1;
+		            }
+		            else {
+		                c[i][j] = MAX(c[i - 1][j], c[i][j - 1]);
+		            }
+		        }
+		    }				
+		}			
+	
+					
+		
 	}
     t2 = omp_get_wtime();
 	printf("T algoritmo vero lcs:%f\n",t2-t1);

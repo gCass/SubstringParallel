@@ -16,6 +16,7 @@ char * readFile(FILE *fin, int *n) {
 	(*n)=0;
 		
 	txt = malloc (dim * BLOCK_READ_SIZE * sizeof(char));
+	strcpy(txt,"");		//Inizializzo la stringa
 	
 	if(!txt) {
 		return NULL;

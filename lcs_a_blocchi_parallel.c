@@ -8,20 +8,23 @@
 
 int BLOCK_SIZE;
 
-char * readFile(FILE *fin, int *n);
-
+// Leggo il file a blocchi della dimensione del blocco che poi usero' per l'algoritmo
+// n e' il numero di blocchi che ho letto
+// Passo anche il numero di caratteri che devo scartare all'inizio del file
 char * readFile(FILE *fin, int *n) {
-	int BLOCK_READ_SIZE = 200;
+	int BLOCK_READ_SIZE = BLOCK_SIZE;
 	char * txt, tmp;
-	int dim=8, read, i, j;
+	int dim=8, read;
 	char buf[BLOCK_READ_SIZE];
 	(*n)=0;
 		
 	txt = malloc (dim * BLOCK_READ_SIZE * sizeof(char));
+	strcpy(txt,"");		//Inizializzo la stringa
 	
 	if(!txt) {
 		return NULL;
 	}
+	
 	while(fgets(buf, sizeof(buf), fin)) {
 		
 		txt = strcat(txt,buf);		
@@ -38,6 +41,7 @@ char * readFile(FILE *fin, int *n) {
 	txt = realloc (txt, (*n) * BLOCK_READ_SIZE * sizeof(char));
 	return txt;
 }
+
 
 
  
@@ -260,13 +264,39 @@ int main (int argc, char *argv[]) {
 
     //I primi 3 caratteri del file sono caratteri di controllo
     //li scartiamo facendo +3 al puntatore
-    int n = strlen(a+3);
-    int m = strlen(b+3);
-    printf("n:%d m:%d\n",n,m);
+   int n = strlen(a);
+    int m = strlen(b);
+    printf("n: %d\n",n);
+    printf("m: %d\n",m);
+    
+    int n_tondo;
+    if(n % BLOCK_SIZE == 0){
+    	n_tondo = n;
+	} else {
+		n_tondo = BLOCK_SIZE * (n/BLOCK_SIZE + 1);
+	}
+	printf("n_tondo: %d\n",n_tondo);
+    
+    int i;
+    for(i=n; i<n_tondo; i++){
+    	a[i] = '1';	// Aggiungo caratteri numerici che non compariranno mai in stringhe genetiche
+	}
+	
+	int m_tondo;
+    if(m % BLOCK_SIZE == 0){
+    	m_tondo = m;
+	} else {
+		m_tondo = BLOCK_SIZE * (m/BLOCK_SIZE + 1);
+	}
+	printf("m_tondo: %d\n",m_tondo);
+    
+    for(i=m; i<m_tondo; i++){
+    	b[i] = '2';	// Aggiungo caratteri numerici che non compariranno mai in stringhe genetiche
+	}
     
     t1 = omp_get_wtime();
 
-    int t = lcs(a+3, n, b+3, m, &s);
+    int t = lcs(a, n_tondo, b, m_tondo, &s);
     t2 = omp_get_wtime();
 	printf("T lcs:%f\n",t2-t1);
 	
@@ -275,7 +305,7 @@ int main (int argc, char *argv[]) {
 //	
 //	printf(b);
 //	printf("\n");
-	
+	printf("%d\n",t);
 	printf("%.*s\n", t, s); // tsitest
     return 0;
 }

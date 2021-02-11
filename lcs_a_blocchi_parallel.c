@@ -265,9 +265,9 @@ int main (int argc, char *argv[]) {
     //I primi 3 caratteri del file sono caratteri di controllo
     //li scartiamo facendo +3 al puntatore
    int n = strlen(a);
-    int m = strlen(b);
-    printf("n: %d\n",n);
-    printf("m: %d\n",m);
+   int m = strlen(b);
+   //printf("n: %d\n",n);
+   //printf("m: %d\n",m);
     
     int n_tondo;
     if(n % BLOCK_SIZE == 0){
@@ -275,7 +275,7 @@ int main (int argc, char *argv[]) {
 	} else {
 		n_tondo = BLOCK_SIZE * (n/BLOCK_SIZE + 1);
 	}
-	printf("n_tondo: %d\n",n_tondo);
+	//printf("n_tondo: %d\n",n_tondo);
     
     int i;
     for(i=n; i<n_tondo; i++){
@@ -288,7 +288,7 @@ int main (int argc, char *argv[]) {
 	} else {
 		m_tondo = BLOCK_SIZE * (m/BLOCK_SIZE + 1);
 	}
-	printf("m_tondo: %d\n",m_tondo);
+	//printf("m_tondo: %d\n",m_tondo);
     
     for(i=m; i<m_tondo; i++){
     	b[i] = '2';	// Aggiungo caratteri numerici che non compariranno mai in stringhe genetiche
@@ -305,7 +305,7 @@ int main (int argc, char *argv[]) {
 //	
 //	printf(b);
 //	printf("\n");
-	printf("%d\n",t);
-	printf("%.*s\n", t, s); // tsitest
+	//printf("%d\n",t);
+	//printf("%.*s\n", t, s); // tsitest
     return 0;
 }

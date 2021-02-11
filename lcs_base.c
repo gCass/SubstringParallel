@@ -104,7 +104,7 @@ int main (int argc, char *argv[]) {
     
     // Come parametri vogliamo i nomi dei due file e la dimensione del blocco.
     // Tra i parametri viene sempre considerato anche il nome del programma
-    if(argc != 3) {
+    if(argc < 3) {
     	printf("Inserire come parametri del programma i nomi dei due file\n");
     	return 0;
 	}
@@ -112,7 +112,7 @@ int main (int argc, char *argv[]) {
     //char path1[] = "dataset/stringa_lcs_3.txt";
 	//char path2[] = "dataset/stringa_lcs_4.txt";	
 	FILE *fin;
-
+	t1 = omp_get_wtime();
 	if((fin = fopen(argv[1], "r"))==NULL){
 		printf("Errore nell'apertura del file!");
 		return -1;
@@ -126,7 +126,8 @@ int main (int argc, char *argv[]) {
 	}	
 	b = readFile(fin, &N);
     fclose(fin);
-
+	t2 = omp_get_wtime();
+  	printf("T lettura:%f\n",t2-t1);
 
 //	a = "UUUAOUUUAOUUUAOUUUAOUUUAO";
 //	b = "PROVACAZZOPROVA";
@@ -150,6 +151,6 @@ int main (int argc, char *argv[]) {
 //	printf(b);
 //	printf("\n");
 	
-	printf("%.*s\n", t, s); // tsitest
+	//printf("%.*s\n", t, s); // tsitest
     return 0;
 }

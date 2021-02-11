@@ -248,7 +248,7 @@ int main (int argc, char *argv[]) {
 	}
 	
  	t2 = omp_get_wtime();
-	printf("T lettura:%f\n",t2-t1);
+	printf("T_lettura %f\n",t2-t1);
 
 	if(reading_error == 1){
 		printf("Errore nell'apertura del file!");
@@ -298,7 +298,7 @@ int main (int argc, char *argv[]) {
 
     int t = lcs(a, n_tondo, b, m_tondo, &s);
     t2 = omp_get_wtime();
-	printf("T lcs:%f\n",t2-t1);
+	printf("T_lcs %f\n",t2-t1);
 	
 //	printf(a);
 //	printf("\n");

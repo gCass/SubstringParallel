@@ -127,12 +127,10 @@ int main (int argc, char *argv[]) {
 	b = readFile(fin, &N);
     fclose(fin);
 	t2 = omp_get_wtime();
-  	printf("T lettura:%f\n",t2-t1);
+  	printf("T_lettura %f\n",t2-t1);
 
 //	a = "UUUAOUUUAOUUUAOUUUAOUUUAO";
-//	b = "PROVACAZZOPROVA";
-    
-    
+//	b = "PROVACAZZOPROVA";   
 
     
     int n = strlen(a+3);
@@ -141,7 +139,7 @@ int main (int argc, char *argv[]) {
     t1 = omp_get_wtime();
     int t = lcs(a+3, n, b+3, m, &s);
     t2 = omp_get_wtime();
-  	printf("T lcs:%f\n",t2-t1);
+  	printf("T_lcs %f\n",t2-t1);
 
 
     

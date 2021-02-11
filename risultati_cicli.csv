@@ -1,0 +1,7 @@
+N_thread,File1,File1_size,File2,File2_size,t_serial_lett,t_serial_lcs,block_size,t_paral_lett,t_paral_lcs
+4,dataset/stringa_lcs_1.txt,10000,dataset/stringa_lcs_2.txt,10000,0.000000,0.219000,50,0.000000,0.190000
+4,dataset/stringa_lcs_1.txt,10000,dataset/stringa_lcs_2.txt,10000,0.000000,0.219000,100,0.000000,0.171000
+4,dataset/stringa_lcs_1.txt,10000,dataset/stringa_lcs_2.txt,10000,0.000000,0.219000,200,0.000000,0.156000
+4,dataset/stringa_lcs_1.txt,10000,dataset/stringa_lcs_2.txt,10000,0.000000,0.219000,300,0.000000,0.156000
+4,dataset/stringa_lcs_1.txt,10000,dataset/stringa_lcs_2.txt,10000,0.000000,0.219000,400,0.000000,0.179000
+4,dataset/stringa_lcs_1.txt,10000,dataset/stringa_lcs_2.txt,10000,0.000000,0.219000,500,0.000000,0.150000

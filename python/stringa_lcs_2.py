@@ -11,12 +11,12 @@ def numToLetter(n):
         return 'T'
 
 
-random.seed(a=987, version=2)
+#random.seed(a=987, version=2)
 ##n=random.randint(0,3) #Genera un numero casuale tra 0 e 3
 ##print(n)
 
-file = open("../dataset/stringa_lcs_2.txt", "wb")
-for i in range(5000):
+file = open("../dataset/stringa_1M_B.txt", "wb")
+for i in range(1000000):
     n=random.randint(0,3) #Genera un numero casuale tra 0 e 3
     c=numToLetter(n)
     asci = c.encode('ascii')

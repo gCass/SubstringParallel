@@ -1,8 +1,8 @@
+//Credits: http://www.rosettacode.org/wiki/Longest_common_subsequence#C
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <omp.h>
- 
+#include <omp.h> 
  
 #define MAX(a, b) (a > b ? a : b)
   
@@ -16,7 +16,8 @@ char * readFile(FILE *fin, int *n) {
 	(*n)=0;
 		
 	txt = malloc (dim * BLOCK_READ_SIZE * sizeof(char));
-	strcpy(txt,"");		//Inizializzo la stringa
+	//Initialize the string
+	strcpy(txt,"");		
 	
 	if(!txt) {
 		return NULL;
@@ -44,18 +45,13 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     int *z = calloc((n + 1) * (m + 1), sizeof (int));
     int **c = calloc((n + 1), sizeof (int *));
     
-	//Assegno a c i puntatori che puntano alle varie posizioni di z (vedere disegno su paint)
+	//Assign to variable c the pointers to the different rows of the matrix 
 	for (i = 0; i <= n; i++) {
         c[i] = &z[i * (m + 1)];
     }
     
-    //Dynamic programming che mette nella matrice i vari risultati di lcs ecc...
     for (i = 1; i <= n; i++) {
-        for (j = 1; j <= m; j++) {
-        	
-//			printf("i:%d\n",i);
-//			printf("j:%d\n",j);
-//			printf("\n\n");
+        for (j = 1; j <= m; j++) {        
         	
             if (a[i - 1] == b[j - 1]) {
                 c[i][j] = c[i - 1][j - 1] + 1;
@@ -66,19 +62,12 @@ int lcs (char *a, int n, char *b, int m, char **s) {
         }
     }
     
-//    printf("Matrice c\n");
-//	for(i=0; i<=n; i++){
-//		for(j=0; j<=m; j++){
-//			printf("%d ",c[i][j]);
-//		}
-//		printf("\n");
-//	}
     
-    //t contiene il valore finale della lunghezza della lcs
+    //t contains length of lcs string
     t = c[n][m];
-    //Alloco lo spazio per la lcs
+    //Allocate space for the lcs string
     *s = malloc(t);
-    //Ricostruisco la lcs
+	//Rebuild of the lcs string
     for (i = n, j = m, k = t - 1; k >= 0;) {
         if (a[i - 1] == b[j - 1])
             (*s)[k] = a[i - 1], i--, j--, k--;
@@ -88,7 +77,6 @@ int lcs (char *a, int n, char *b, int m, char **s) {
             i--;
     }
     
-    //Libero lo spazio
     free(c);
     free(z);
     return t;
@@ -102,15 +90,12 @@ int main (int argc, char *argv[]) {
     double t1,t2;
     
     
-    // Come parametri vogliamo i nomi dei due file e la dimensione del blocco.
-    // Tra i parametri viene sempre considerato anche il nome del programma
+    //The parameters are the 2 file paths
     if(argc < 3) {
     	printf("Inserire come parametri del programma i nomi dei due file\n");
     	return 0;
 	}
 	
-    //char path1[] = "dataset/stringa_lcs_3.txt";
-	//char path2[] = "dataset/stringa_lcs_4.txt";	
 	FILE *fin;
 	t1 = omp_get_wtime();
 	if((fin = fopen(argv[1], "r"))==NULL){
@@ -128,27 +113,20 @@ int main (int argc, char *argv[]) {
     fclose(fin);
 	t2 = omp_get_wtime();
   	printf("T_lettura %f\n",t2-t1);
-
-//	a = "UUUAOUUUAOUUUAOUUUAOUUUAO";
-//	b = "PROVACAZZOPROVA";   
-
     
-    int n = strlen(a+3);
-    int m = strlen(b+3);
+    int n = strlen(a);
+    int m = strlen(b);
     
     t1 = omp_get_wtime();
-    int t = lcs(a+3, n, b+3, m, &s);
+    int t = lcs(a, n, b, m, &s);
     t2 = omp_get_wtime();
   	printf("T_lcs %f\n",t2-t1);
 
 
-    
-//	printf(a);
-//	printf("\n");
-//	
-//	printf(b);
-//	printf("\n");
+	//Print length of lcs string
+	//printf("%d\n",t);
 	
-	//printf("%.*s\n", t, s); // tsitest
+	//Print the lcs string
+	//printf("%.*s\n", t, s); 
     return 0;
 }

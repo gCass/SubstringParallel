@@ -200,7 +200,7 @@ int main (int argc, char *argv[]) {
     char *s = NULL;
     double t1,t2;
     
-    omp_set_num_threads(8);
+    omp_set_num_threads(24);
     
     // Come parametri vogliamo i nomi dei due file e la dimensione del blocco.
     // Tra i parametri viene sempre considerato anche il nome del programma

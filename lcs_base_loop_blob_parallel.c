@@ -147,61 +147,122 @@ int lcs (char *a, int n, char *b, int m, char **s) {
     return t;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
     char *a;
     char *b;
    	int N=0;
     char *s = NULL;
+    double t1,t2;
     
-    double t1 = omp_get_wtime();
+    omp_set_num_threads(2);
     
-    char path1[] = "dataset/stringa_lcs_3.txt";
-	char path2[] = "dataset/stringa_lcs_4.txt";	
+    // Come parametri vogliamo i nomi dei due file e la dimensione del blocco.
+    // Tra i parametri viene sempre considerato anche il nome del programma
+    if(argc != 3) {
+    	printf("Inserire come parametri del programma i nomi dei due file \n");
+    	return 0;
+	}
+	
+	//BLOCK_SIZE = atoi(argv[3]);
+    
+  	//char path1[] = "dataset/stringa_lcs_3.txt";
+	//char path2[] = "dataset/stringa_lcs_4.txt";	
 	FILE *fin;
+	int reading_error = 0; //Flag gestione errore lettura file
+	
+	t1 = omp_get_wtime();
+	
+	//La lettura dei due file in parallelo è un'aggiunta in più, ma che non ha grandi vantaggi 	
+	#pragma omp parallel private(fin)
+	{	
+		#pragma omp single
+		{
+			#pragma omp task
+			{
+				if((fin = fopen(argv[1], "r"))!=NULL){
+//					printf("Errore nell'apertura del file!");					
+					a = readFile(fin, &N);
+					fclose(fin);						
+				}else{
+					reading_error = 1;
+				}				
+			}
+			
+			#pragma omp task
+			{
+				if((fin = fopen(argv[2], "r"))!=NULL){
+//					printf("Errore nell'apertura del file!");					
+					b = readFile(fin, &N);
+					fclose(fin);						
+				}else{
+					reading_error = 1;
+				}	
+			}
+			
+			#pragma omp taskwait	
+		}
+	}
+	
+ 	t2 = omp_get_wtime();
+	printf("T_lettura %f\n",t2-t1);
 
-	if((fin = fopen(path1, "r"))==NULL){
+	if(reading_error == 1){
 		printf("Errore nell'apertura del file!");
 		return -1;
-	}	
-	a = readFile(fin, &N);
-    fclose(fin);
-    
-    if((fin = fopen(path2, "r"))==NULL){
-		printf("Errore nell'apertura del file!");
-		return -1;
-	}	
-	b = readFile(fin, &N);
-    fclose(fin);
-	double t2 = omp_get_wtime();
-	printf("T lettura:%f\n",t2-t1);
+	}
 
-	//Assumo che b sia la piu' corta delle due stringhe (m<=n)
-	//a = "PROVACAZZO";
-	//b = "UUAU";
+
+	//Faccio una 15x15, così da fare blocchi da 5
+	
+//	a = "UUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAOUUUAO";
+//	b = "PROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVAPROVACAZZOPROVA";
     
-    int n = strlen(a);
-    int m = strlen(b);
+
+    //I primi 3 caratteri del file sono caratteri di controllo
+    //li scartiamo facendo +3 al puntatore
+   int n = strlen(a);
+   int m = strlen(b);
+   //printf("n: %d\n",n);
+   //printf("m: %d\n",m);
+    /*
+    int n_tondo;
+    if(n % BLOCK_SIZE == 0){
+    	n_tondo = n;
+	} else {
+		n_tondo = BLOCK_SIZE * (n/BLOCK_SIZE + 1);
+	}
+	//printf("n_tondo: %d\n",n_tondo);
     
-    printf("n=%d\n",n);
-    printf("m=%d\n",m);
+    int i;
+    for(i=n; i<n_tondo; i++){
+    	a[i] = '1';	// Aggiungo caratteri numerici che non compariranno mai in stringhe genetiche
+	}
+	
+	int m_tondo;
+    if(m % BLOCK_SIZE == 0){
+    	m_tondo = m;
+	} else {
+		m_tondo = BLOCK_SIZE * (m/BLOCK_SIZE + 1);
+	}
+	//printf("m_tondo: %d\n",m_tondo);
     
-    //printf("Ciao");
+    for(i=m; i<m_tondo; i++){
+    	b[i] = '2';	// Aggiungo caratteri numerici che non compariranno mai in stringhe genetiche
+	}
+	*/
+    
     t1 = omp_get_wtime();
+
     int t = lcs(a, n, b, m, &s);
     t2 = omp_get_wtime();
-    printf("T function LCS:%f\n",t2-t1);
-    
-    printf("Stampe\n");
-    
-    //Stampo le stringhe di input
-//	printf("%s\n",a);	
-//	printf("%s\n",b);
-	printf("++++++++++++++++++\n");
-	//Stampo il risultato
-	printf("t = %d\n", t);
-//	printf("s = ");
-//	printf(s);
+	printf("T_lcs %f\n",t2-t1);
 	
+//	printf(a);
+//	printf("\n");
+//	
+//	printf(b);
+//	printf("\n");
+	//printf("%d\n",t);
 	//printf("%.*s\n", t, s); // tsitest
     return 0;
 }

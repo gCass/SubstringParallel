@@ -68,7 +68,8 @@ int lcs (char *a, int n, char *b, int m, char **s) {
 			for (i = i_start; i < i_start+BLOCK_SIZE; i++) {
 				for (j = j_start; j < j_start+BLOCK_SIZE; j++) {
 		        				        	
-		            //Since we never access matrix cells of same block in parallel, critic section isn't necessary
+		            //Since we never access matrix cells of same block in parallel,
+					//critic section isn't necessary
 					if (a[i - 1] == b[j - 1]) {			            	
 		                c[i][j] = c[i - 1][j - 1] + 1;
 		            }
